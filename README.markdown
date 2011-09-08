@@ -24,7 +24,7 @@ The following puppet manifest will deploy f5 gem on the f5_proxy system and depl
 
       cron { "bigip":
         command => 'puppet device --deviceconf /etc/puppetlabs/puppet/device/f5.puppetlabs.lan.conf',
-        min     => fqdn_rand(60),
+        minute  => fqdn_rand(60),
       }
     }
 
@@ -36,7 +36,7 @@ The following puppet manifest will deploy f5 gem on the f5_proxy system and depl
 
 2. Create the corresponding node configuration on the puppet master site.pp:
 
-        node f5.puppetlabs.lan {
+        node 'f5.puppetlabs.lan' {
           f5_rule { 'demo':
             ensure     => 'present',
             definition => 'when HTTP_REQUEST {}',
