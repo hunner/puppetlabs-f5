@@ -35,7 +35,7 @@ class Puppet::Util::NetworkDevice::F5::Device
     ]
 
     Puppet.debug("Puppet::Device::F5: connecting to F5 device #{@url.host}.")
-    @transport ||= F5::IControl.new(@url.host, @url.user, @url.password, modules).get_interfaces
+    @transport ||= Puppet::Util::NetworkDevice::F5::Transport.new(@url.host, @url.user, @url.password, modules).get_interfaces
 
     # Access Common partition by default:
     if @url.path == '' or @url.path == '/'

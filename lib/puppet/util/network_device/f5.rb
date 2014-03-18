@@ -1,6 +1,7 @@
 require 'openssl'
 require 'digest/sha1'
 require 'puppet/util/network_device'
+
 module Puppet::Util::NetworkDevice::F5
   # This is intended to decode certificate (subject, serial, issuer, expiration) for comparison.
   def self.decode(content)
@@ -27,7 +28,7 @@ module Puppet::Util::NetworkDevice::F5
     cert = decode(content)
     Digest::SHA1.hexdigest(cert.to_der)
   end
-  
+
   def self.snmpconfiguration_methods
     {
       :access_info => [{
@@ -170,6 +171,7 @@ module Puppet::Util::NetworkDevice::F5
       }],
     }
   end
+
   def self.validate_data_struct(struct, data, param)
     if struct.class == Hash
       struct.keys.each do |k|
@@ -183,6 +185,7 @@ module Puppet::Util::NetworkDevice::F5
       end
     end
   end
+
   def self.get_data_struct(struct, object)
     if struct.class == Hash
       r={}
@@ -200,4 +203,5 @@ module Puppet::Util::NetworkDevice::F5
       return object.to_s
     end
   end
+
 end
