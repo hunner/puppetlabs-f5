@@ -23,16 +23,16 @@ The following puppet manifest will deploy f5 gem on the f5_proxy system and depl
     node f5_proxy_system {
       include f5
 
-      f5::config { "f5.puppetlabs.lan":
+      f5::config { 'f5.puppetlabs.lan':
         username => 'admin',
         password => 'admin',
         url      => 'f5.puppetlabs.lan',
-        target   => '/etc/puppetlabs/puppet/device/f5.puppetlabs.lan.conf'
+        target   => "${::settings::confdir}/device/f5.puppetlabs.lan.conf"
       }
 
       cron { "bigip":
-        command => 'puppet device --deviceconfig /etc/puppetlabs/puppet/device/f5.puppetlabs.lan.conf',
-        min     => fqdn_rand(60),
+        command => "puppet device --deviceconfig ${::settings::confdir}/device/f5.puppetlabs.lan.conf",
+        minute  => fqdn_rand(60),
       }
     }
 

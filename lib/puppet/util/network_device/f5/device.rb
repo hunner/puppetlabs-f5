@@ -46,10 +46,14 @@ class Puppet::Util::NetworkDevice::F5::Device
 
     # System.Session API not supported until V11.
     Puppet.debug("Puppet::Device::F5: connecting to partition #{@partition}.")
+    require 'pry'
+    binding.pry
     if transport['System.Session']
-      transport['System.Session'].set_active_folder(@partition)
+      transport['System.Session'].call(:set_active_folder)[@partition]
+      #transport['System.Session'].call(:set_active_folder(@partition))
     else
-      transport['Management.Partition'].set_active_partition(@partition)
+      transport['Management.Partition'].call(:set_active_partition)[@partition]
+      #transport['Management.Partition'].call(:set_active_partition(@partition))
     end
   end
 
