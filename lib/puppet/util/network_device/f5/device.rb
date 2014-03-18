@@ -1,6 +1,6 @@
 require 'uri'
-require 'f5-icontrol'
 require 'puppet/util/network_device/f5/facts'
+require 'puppet/util/network_device/f5/transport'
 
 class Puppet::Util::NetworkDevice::F5::Device
 
