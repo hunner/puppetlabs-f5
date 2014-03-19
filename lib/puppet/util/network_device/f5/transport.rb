@@ -26,7 +26,9 @@ module Puppet::Util::NetworkDevice::F5
           namespace = 'urn:iControl:' + wsdl.gsub(/(.*)\.(.*)/, '\1/\2')
           url = 'https://' + @hostname + '/' + @endpoint
           @interfaces[wsdl] = Savon.client(wsdl: wsdl_path, ssl_verify_mode: :none,
-            basic_auth: [@username, @password], endpoint: url, namespace: namespace)
+            basic_auth: [@username, @password], endpoint: url,
+            namespace: namespace, convert_request_keys_to: :none,
+            strip_namespaces: true, log: true)
         end
       end
 
