@@ -1,6 +1,8 @@
 Puppet::Type.newtype(:f5_user) do
   @doc = "Manages F5 user."
 
+  feature :descriptions, "Supports the ability to set user descriptions."
+
   apply_to_device
 
   ensurable do
@@ -40,7 +42,7 @@ Puppet::Type.newtype(:f5_user) do
     end
   end
 
-  newproperty(:description) do
+  newproperty(:description, :required_features => :descriptions) do
     desc "The description for the specified user. (API >= v10)"
   end
 
