@@ -1,6 +1,6 @@
 require 'puppet/provider/f5'
 
-Puppet::Type.type(:f5_user).provide(:f5_user_09, :parent => Puppet::Provider::F5) do
+Puppet::Type.type(:f5_user).provide(:f5_user, :parent => Puppet::Provider::F5) do
   @doc = "Manages F5 user"
 
   confine    :feature => :posix
@@ -14,9 +14,6 @@ Puppet::Type.type(:f5_user).provide(:f5_user_09, :parent => Puppet::Provider::F5
     self.class.wsdl
   end
 
-  def user_permission
-  end
-
   def self.instances
     Puppet.debug("Puppet::Provider::F5_User: instances")
     transport[wsdl].call(:get_list).body[:get_list_response][:return][:item].collect do |item|
@@ -24,6 +21,38 @@ Puppet::Type.type(:f5_user).provide(:f5_user_09, :parent => Puppet::Provider::F5
           :ensure => :present
          )
     end
+  end
+
+  def create
+    Puppet.debug("Puppet::Provider::F5_User: creating F5 user #{resource[:name]}")
+    user_info = {
+      :user           => { :name => resource[:name], :full_name => resource[:fullname]},
+      :password       => { :password => resource[:password]['password'], :is_encrypted => resource[:password]['is_encrypted'] },
+      :login_shell    => resource[:login_shell],
+      :permissions    => [resource[:user_permission]],
+    }
+
+    # Create_user() and create_user_2() are deprecated and create_user_3()
+    # attempts to autodiscover the other values like user_id.
+    transport[wsdl].call(:create_user_3, message: user_info)
+  end
+
+  def destroy
+    Puppet.debug("Puppet::Provider::F5_User: destroying F5 user #{resource[:name]}")
+
+    transport[wsdl].call(:delete_user, message: resource[:name])
+  end
+
+  def exists?
+    transport[wsdl].call(:get_list).body[:get_list_response][:return][:item].each do |user|
+      return true if user[:name[resource[:name]]]
+    end
+  end
+
+  def query_user_property(user, property)
+    message = { user_names: { item: Array(user) } }
+    result = transport[wsdl].call("get_#{property}".to_sym, message: message).body
+    result["get_#{property}_response".to_sym][:return][:item]
   end
 
   def user_permission
@@ -83,77 +112,23 @@ Puppet::Type.type(:f5_user).provide(:f5_user_09, :parent => Puppet::Provider::F5
     transport[wsdl].change_password_2([resource[:name]],[{ :password => resource[:password]['password'], :is_encrypted => resource[:password]['is_encrypted'] }])
   end
 
-  methods = [
-    'home_directory',
-    'role'
-  ]
-
-  methods.each do |method|
-    define_method(method.to_sym) do
-      if transport[wsdl].respond_to?("get_#{method}".to_sym)
-        Puppet.debug("Puppet::Provider::F5_User: retrieving #{method} for #{resource[:name]}")
-        transport[wsdl].send("get_#{method}", resource[:name]).first.to_s
-      end
-    end
-  end
-
-  methods.each do |method|
-    define_method("#{method}=") do |value|
-      if transport[wsdl].respond_to?("set_#{method}".to_sym)
-        transport[wsdl].send("set_#{method}", resource[:name], resource[method.to_sym])
-      end
-    end
-  end
-
-  def create
-    Puppet.debug("Puppet::Provider::F5_User: creating F5 user #{resource[:name]}")
-    user_info_2 = {
-      :user           => { :name => resource[:name], :full_name => resource[:fullname]},
-      :password       => { :password => resource[:password]['password'], :is_encrypted => resource[:password]['is_encrypted'] },
-      :home_directory => resource[:home_directory],
-      :login_shell    => resource[:login_shell],
-      :user_id        => resource[:user_id],
-      :group_id       => resource[:group_id],
-      :role           => resource[:role],
-    }
-    transport[wsdl].create_user_2([user_info_2])
-  end
-
-  def destroy
-    Puppet.debug("Puppet::Provider::F5_User: destroying F5 user #{resource[:name]}")
-    transport[wsdl].delete_user(resource[:name])
-  end
-
-  def exists?
-    transport[wsdl].call(:get_list).body[:get_list_response][:return][:item].each do |user|
-      return true if user[:name[resource[:name]]]
-    end
-  end
-
-  def query_user_property(user, property)
-    message = { user_names: { item: Array(user) } }
-    result = transport[wsdl].call("get_#{property}".to_sym, message: message).body
-    result["get_#{property}_response".to_sym][:return][:item]
-  end
 
   def fullname
-    transport[wsdl].call(:get_fullname, message: { user_names: resource[:name] }).body[:get_fullname_response][:return]
     query_user_property(resource[:name], 'fullname')
   end
 
   def fullname=(value)
     message = { user_names: resource[:name], fullnames: value }
-    transport[wsdl].call(:set_fullname, message: message).body[:get_fullname_response][:return]
+    transport[wsdl].call(:set_fullname, message: message).body[:set_fullname_response][:return]
   end
 
   def login_shell
-    #transport[wsdl].call(:get_login_shell, message: { user_names: resource[:name] }).body[:get_login_shell][:return]
     query_user_property(resource[:name], 'login_shell')
   end
 
-  def fullname=(value)
+  def login_shell=(value)
     message = { user_names: resource[:name], shells: value }
-    transport[wsdl].call(:set_fullname, message: message).body[:set_fullname_response][:return]
+    transport[wsdl].call(:set_login_shell, message: message).body[:set_fullname_response][:return]
   end
 
 end

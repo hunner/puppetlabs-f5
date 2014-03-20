@@ -4,26 +4,11 @@ Puppet::Type.newtype(:f5_user) do
   feature :descriptions, "Supports the ability to set user descriptions."
 
   apply_to_device
-
-  ensurable do
-    desc "F5 user resource state. Valid values are present, absent."
-    defaultto(:present)
-    newvalue(:present) do
-      provider.create
-    end
-    newvalue(:absent) do
-      provider.destroy
-    end
-  end
+  ensurable
 
   newparam(:name, :namevar=>true) do
     desc "The user name."
     newvalues(/^[[:alpha:][:digit:]]+$/)
-  end
-
-  newproperty(:role) do
-    desc "The user role. (API < V11)"
-    newvalues(/^USER_ROLE_(ADMINISTRATOR|TRAFFIC_MANAGER|GUEST|ASM_POLICY_EDITOR|MANAGER|EDITOR|APPLICATION_EDITOR|CERTIFICATE_MANAGER|USER_MANAGER|RESOURCE_ADMINISTRATOR|ASM_EDITOR|ADVANCED_OPERATOR)$/)
   end
 
   newproperty(:user_permission) do
