@@ -11,36 +11,40 @@ class Puppet::Util::NetworkDevice::F5::Facts
   end
 
   def to_64i(value)
-    (value.high.to_i << 32) + value.low.to_i
+    (value[:high].to_i << 32) + value[:low].to_i
   end
 
   def retrieve
     @facts = {}
     [ 'base_mac_address',
       'group_id',
-      'hardware_information',
       'marketing_name',
       'pva_version',
       'system_id',
       'uptime',
       'version'
     ].each do |key|
-        @facts[key] = @transport[F5_WSDL].send("get_#{key}".to_s)
+      @facts[key] = @transport[F5_WSDL].call("get_#{key}".to_sym).body["get_#{key}_response".to_sym][:return]
     end
 
-    # TODO:  Make this an array of items to get, so we can determine the _response
-    # to use.
-    system_info = @transport[F5_WSDL].call(:get_system_information).to_hash
+    system_info = @transport[F5_WSDL].call(:get_system_information).body
     system_info[:get_system_information_response][:return].each do |key|
       @facts[key] = system_info[:get_system_information_response][:return][key]
     end
 
-    # We only want entries from the first item.
-    hardware_info = @transport[F5_WSDL].call(:get_hardware_information).to_hash
-    hardware_info[:get_hardware_information_response][:return].each do |key|
-      @facts["hardware_#{key}"] = hardware_info[:get_hardware_information_response][:return].first[key]
-      fact_key = key == 'name' ? "hardware_#{hardware.name}" : "hardware_#{hardware.name}_#{key}"
-      @facts[fact_key] = hardware[:get_hardware_information_response][:return][key]
+    # We want to get two kinds of values from get_hardware_information, the
+    # first is a bunch of key/value pairs.  However, if the key is versions
+    # then we want to iterate a subarray of hashes (it gets messy in SOAP)
+    # to get the rest of the facts we need here.
+    hardware_info = @transport[F5_WSDL].call(:get_hardware_information).body[:get_hardware_information_response][:return][:item]
+    hardware_info.each do |key, value|
+      if key == :versions
+        hardware_info[key][:item].each do |hash|
+          @facts["hardware_#{hash[:name]}"] = hash[:value]
+        end
+      else
+        @facts["hardware_#{key}"] = value
+      end
     end
 
     disk_info = @transport[F5_WSDL].call(:get_disk_usage_information).to_hash
@@ -64,9 +68,9 @@ class Puppet::Util::NetworkDevice::F5::Facts
     end
 
     if @facts['uptime_seconds'] then
-      @facts['uptime']       = "#{String(@facts['uptime_seconds']/86400)} days" # String
-      @facts['uptime_hours'] = @facts['uptime_seconds'] / (60 * 60)             # Integer
-      @facts['uptime_days']  = @facts['uptime_hours'] / 24                      # Integer
+      @facts['uptime']       = "#{String(@facts['uptime_seconds'].to_i / 86400)} days" # String
+      @facts['uptime_hours'] = @facts['uptime_seconds'].to_i / (60 * 60)             # Integer
+      @facts['uptime_days']  = @facts['uptime_hours'].to_i / 24                      # Integer
     end
 
     if @facts['hardware_cpus_versions']
@@ -76,7 +80,7 @@ class Puppet::Util::NetworkDevice::F5::Facts
       @facts.delete('versions')
     end
 
-    @facts['timezone'] = @transport[F5_WSDL].call(:get_time_zone)[:get_time_zone_response][:return][:time_zone]
+    @facts['timezone'] = @transport[F5_WSDL].call(:get_time_zone).body[:get_time_zone_response][:return][:time_zone]
     @facts
   end
 end
