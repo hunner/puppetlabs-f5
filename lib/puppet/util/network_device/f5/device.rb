@@ -50,11 +50,7 @@ class Puppet::Util::NetworkDevice::F5::Device
     #binding.pry
 
     # System.Session is only available on F5 11.0
-    begin
-      transport['System.Session'].call(:set_active_folder, message: { active_partition: @partition })
-    rescue
-      transport['Management.Partition'].call(:set_active_partition, message: { active_partition: @partition })
-    end
+    transport['System.Session'].call(:set_active_folder, message: { active_partition: @partition })
   end
 
   def facts
