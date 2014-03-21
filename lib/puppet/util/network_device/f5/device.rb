@@ -37,20 +37,18 @@ class Puppet::Util::NetworkDevice::F5::Device
     Puppet.debug("Puppet::Device::F5: connecting to F5 device #{@url.host}.")
     @transport ||= Puppet::Util::NetworkDevice::F5::Transport.new(@url.host, @url.user, @url.password, modules).get_interfaces
 
-    # Access Common partition by default:
+    # Access Common folder by default:
     if @url.path == '' or @url.path == '/'
-      @partition = 'Common'
+      @folder = '/Common'
     else
-      @partition = /\/(.*)/.match(@url.path).captures
+      @folder = /\/(.*)/.match(@url.path).captures
     end
 
     # System.Session API not supported until V11.
-    Puppet.debug("Puppet::Device::F5: connecting to partition #{@partition}.")
-    #require 'pry'
-    #binding.pry
+    Puppet.debug("Puppet::Device::F5: connecting to partition #{@folder}.")
 
     # System.Session is only available on F5 11.0
-    transport['System.Session'].call(:set_active_folder, message: { active_partition: @partition })
+    transport['System.Session'].call(:set_active_folder, message: { folder: @folder })
   end
 
   def facts
