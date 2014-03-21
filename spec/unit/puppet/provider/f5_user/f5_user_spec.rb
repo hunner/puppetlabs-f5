@@ -22,6 +22,8 @@ describe Puppet::Type.type(:f5_user).provider(:f5_user) do
 
   describe '#instances' do
     it do
+      transport = double(Puppet::Util::NetworkDevice::F5::Transport) ; transport.stub(:get_interface).and_return("whatever")
+      allow(Puppet::Util::NetworkDevice::F5::Transport).to receive(:new).and_return transport
       savon.expects(:get_list)
       subject.class.instances
     end
