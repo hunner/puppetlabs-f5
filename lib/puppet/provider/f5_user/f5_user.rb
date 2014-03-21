@@ -43,7 +43,7 @@ Puppet::Type.type(:f5_user).provide(:f5_user, :parent => Puppet::Provider::F5) d
   def destroy
     Puppet.debug("Puppet::Provider::F5_User: destroying F5 user #{resource[:name]}")
 
-    transport[wsdl].call(:delete_user, message: resource[:name])
+    transport[wsdl].call(:delete_user, message: { user_names: { item: resource[:name]}})
   end
 
   def exists?

@@ -28,7 +28,7 @@ module Puppet::Util::NetworkDevice::F5
           @interfaces[wsdl] = Savon.client(wsdl: wsdl_path, ssl_verify_mode: :none,
             basic_auth: [@username, @password], endpoint: url,
             namespace: namespace, convert_request_keys_to: :none,
-            strip_namespaces: true, log: true)
+            strip_namespaces: true, log: false)
         end
       end
 

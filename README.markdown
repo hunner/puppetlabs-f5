@@ -1,3 +1,7 @@
+# WIP NOTES:
+f5_rule{} now requires a /Folder/ in the rulename as this is enforced on v11+.  Technically it takes an unlabelled one and just applies it to /Common/ by the looks of things and we could mangle to that but it seems safest to just require them.
+
+
 # Puppet Labs F5 module
 Warning: this project is currently work in progress, *pending* sections are planned features.
 
