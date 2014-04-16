@@ -31,7 +31,7 @@ Puppet::Type.type(:f5_profileclientssl).provide(:f5_profileclientssl, :parent =>
   # Does the filtering of the responses for us.
   def return_value(response)
     value = response[:value].is_a?(String) ? response[:value] : ''
-    { :value => value, :default_flag => response[:default_flag] }
+    { :value => value, :default_flag => response[:default_flag].to_s }
   end
 
   def certificate_file
@@ -47,6 +47,8 @@ Puppet::Type.type(:f5_profileclientssl).provide(:f5_profileclientssl, :parent =>
       keys: { item: { value: existing_key[:value], default_flag: existing_key[:default_flag] }},
       certs: { item: { value: value[:value], default_flag: value[:default_flag] }},
     }
+    require 'pry'
+    binding.pry
     transport[wsdl].call(:set_key_certificate_file, message: message)
   end
 
@@ -135,17 +137,19 @@ Puppet::Type.type(:f5_profileclientssl).provide(:f5_profileclientssl, :parent =>
       profile_names: { item: resource[:name] },
       keys: {
         item: {
-          value: resource[:key_file]["value"],
-          default_flag: resource[:key_file]["default_flag"]
+          value: resource['key_file'][:value],
+          default_flag: resource['key_file'][:default_flag]
         }
       },
       certs: {
         item: {
-          value: resource[:certificate_file]["value"],
-          default_flag: resource[:certificate_file]["default_flag"]
+          value: resource['certificate_file'][:value],
+          default_flag: resource['certificate_file'][:default_flag]
         }
       }
     }
+    require 'pry'
+    binding.pry
     transport[wsdl].call(:create_v2, message: message)
 
     # It's not clear to me the difference between these two.  We've been
