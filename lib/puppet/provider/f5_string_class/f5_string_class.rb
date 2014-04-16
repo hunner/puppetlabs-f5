@@ -15,7 +15,7 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
 
   def self.instances
     Array(transport[wsdl].get(:get_string_class_list)).collect do |name|
-      new(:name => name)
+      new(:name => name, :ensure => :present)
     end
   end
 
@@ -108,6 +108,6 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
   end
 
   def exists?
-    transport[wsdl].get(:get_string_class_list).include?(resource[:name])
+    @property_hash[:ensure] == :present
   end
 end
