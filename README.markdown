@@ -65,6 +65,7 @@ Once you've run this on a proxy you can then create a class and apply it to a no
       password => {'is_encrypted' => 'false', 'password' => 'test'}
     }
   }
+```
 
 ###Beginning with [Modulename]  
 
