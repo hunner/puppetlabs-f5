@@ -14,7 +14,7 @@ Puppet::Type.newtype(:f5_certificate) do
   end
 
   newproperty(:content) do
-    desc "The cerficate content in PEM format (sha1 fingerprint)."
+    desc "The certificate content in PEM format (sha1 fingerprint)."
 
     munge do |value|
       resource[:real_content] = value

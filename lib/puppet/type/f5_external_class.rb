@@ -41,7 +41,7 @@ Puppet::Type.newtype(:f5_external_class) do
   end
 
   newproperty(:data_separator) do
-    desc "The class types for the specified classes."
+    desc "The data seperator for the specified classes."
 
     newvalues(/^[[:punct:][:space:]]+$/)
     defaultto(':=')

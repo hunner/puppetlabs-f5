@@ -1,4 +1,3 @@
-require 'puppet/util/network_device/f5'
 Puppet::Type.newtype(:f5_snmpconfiguration) do
   @doc = "Manage F5 SNMP configuration properties."
 
@@ -9,31 +8,98 @@ Puppet::Type.newtype(:f5_snmpconfiguration) do
     newvalues(/^(agent)+$/)
     newvalues(/^[[:alpha:][:digit:]\.\-]+$/)
   end
-  
-  methods=Puppet::Util::NetworkDevice::F5.snmpconfiguration_methods
-  
-  methods.keys.each do |method|
-    args={}
-    if methods[method].class == Array
-      args[:array_matching] = :all
-    end
-    newproperty(method, args) do
-      if methods[method].class == Array
-        def insync?(is)
-          is.count == @should.count && (is & @should).count == @should.count
-        end
-      end
-      if methods[method].class == Array || methods[method].class == Hash
-        def should_to_s(newvalue)
-          newvalue.inspect
-        end
-        def is_to_s(currentvalue)
-          currentvalue.inspect
-        end
-      end
-      validate do |value|
-        Puppet::Util::NetworkDevice::F5.validate_data_struct(methods[method], value, method)
-      end
-    end
+
+  newproperty(:access_info) do
   end
+
+  newproperty(:agent_group_id) do
+  end
+
+  newproperty(:agent_interface) do
+  end
+
+  newproperty(:agent_listen_address) do
+  end
+
+  newproperty(:agent_trap_state) do
+  end
+
+  newproperty(:agent_user_id) do
+  end
+
+  newproperty(:auth_trap_state) do
+  end
+
+  newproperty(:check_disk) do
+  end
+
+  newproperty(:check_file) do
+  end
+
+  newproperty(:check_load) do
+  end
+
+  newproperty(:check_process) do
+  end
+
+  newproperty(:client_access) do
+  end
+
+  newproperty(:community_to_security_info) do
+  end
+
+  newproperty(:create_user) do
+  end
+
+  newproperty(:engine_id) do
+  end
+
+  newproperty(:exec) do
+  end
+
+  newproperty(:exec_fix) do
+  end
+
+  newproperty(:generic_traps_v2) do
+  end
+
+  newproperty(:group_info) do
+  end
+
+  newproperty(:ignore_disk) do
+  end
+
+  newproperty(:pass_through) do
+  end
+
+  newproperty(:pass_through_persist) do
+  end
+
+  newproperty(:process_fix) do
+  end
+
+  newproperty(:proxy) do
+  end
+
+  newproperty(:readonly_community) do
+  end
+
+  newproperty(:readonly_user) do
+  end
+
+  newproperty(:readwrite_community) do
+  end
+
+  newproperty(:readwrite_user) do
+  end
+
+  newproperty(:system_information) do
+  end
+
+  newproperty(:trap_community) do
+  end
+
+  newproperty(:view_info) do
+  end
+
 end
