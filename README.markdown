@@ -546,14 +546,293 @@ The pattern marking the start of the section of payload data whose hashed value 
 The timeout for the specified Persistence profiles. The number of seconds to timeout a persistence entry.
 
 ###f5_route
+
+Manage static routes within the F5.
+
+####name
+
+The name of the routing object to manage.
+
+####description
+
+Description of the route.
+
+####destination
+
+Destination of the route
+
+####netmask
+
+Netmask of the route.
+
+####mtu
+
+MTU of the route
+
+####gateway
+
+Gateway of the route
+
+####pool
+
+Pool to route to.
+
+####vlan
+
+VLAN to route to.
+
 ###f5_rule
+
+####name
+
+The name of the rule to manage.
+
+####definition
+
+The rule definition.
+
 ###f5_snat
+
+#####name
+
+The name of the snat to manage.
+
+#####connection_mirror_state
+
+The connection mirror states for a specified SNATs.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+#####original_address
+
+The list of original client addresses used to filter the traffic to the SNATs."
+
+
+#####source_port_behavior
+
+The source port behavior for the specified SNATs.
+
+Valid options are: SOURCE_PORT_PRESERVE, SOURCE_PORT_PRESERVE_STRICT, SOURCE_PORT_CHANGE
+
+#####translation_target
+
+The translation targets for the specified SNATs. If the target type is SNAT_TYPE_AUTOMAP, then the translation object should be empty.
+
+#####vlan
+
+The list of VLANs on which access to the specified SNATs is disabled/enabled.
+
 ###f5_snatpool
+
+####name
+
+The name of the snatpool to manage.
+
+####membership
+
+Membes of the snat pool.
+
+####member
+
+The list of members belonging to the specified SNAT pools.
+
 ###f5_snattranslationaddress
+
+####name
+
+The snat translation address to manage.
+
+####addresses
+
+The IP addresses of the specified SNAT translation address/
+
+####arp_state
+
+The ARP states for the specified translation SNAT address.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+####connection_limit
+
+The connection limits of the specified original SNAT translation address.
+
+####enabled_state
+
+The state of a SNAT translation address.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+####ip_timeout
+
+The IP idle timeouts of the specified SNAT translation address.
+
+####tcp_timeout
+
+The TCP idle timeouts of the specified SNAT translation address.
+
+####udp_timeout
+
+The UDP idle timeouts of the specified SNAT translation addresses.
+
 ###f5_snmpconfiguration
+
+# CURRENTLY UNAVAILABLE AND SET TO FAIL.
+
 ###f5_string_class
+
+####name
+
+The name of the string class to manage.
+
+####members
+
+The string class members.
+
 ###f5_user
+
+####name
+
+The user name to manage.
+
+####user_permission
+
+The list of user permissions.
+
+####description
+
+The description for the specified user.
+
+####fullname
+
+The full name for the specified user.
+
+####password
+
+The password for the specified user.
+
+####login_shell
+
+The login shell for the specified user.
+
 ###f5_virtualserver
+
+####name
+
+The virtual server name.
+
+####clone_pool
+
+The virtual server clone pool.
+
+####cmp_enabled_state
+
+The virtual server cmp enable state.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+####connection_limit
+
+The virtual server connection limit.
+
+####connection_mirror_state
+
+The virtual server connection limit.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+####default_pool_name
+
+The virtual server default pool name.
+
+####destination
+
+The virtual server destination virtual address and port.
+
+####enabled_state
+
+The virtual server state.
+
+####fallback_persistence_profile
+
+The virtual server fallback persistent profile.
+
+####gtm_score
+
+The virtual server gtm score.
+
+####last_hop_pool
+
+The virtual server lasnat64 state.
+
+####nat64_state
+
+The virtual server nat64 state.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+####protocol
+
+The virtual server protocol.
+
+Valid options are: PROTOCOL_ANY, PROTOCOL_IPV6, PROTOCOL_ROUTING, PROTOCOL_NONE, PROTOCOL_FRAGMENT, PROTOCOL_DSTOPTS, PROTOCOL_TCP, PROTOCOL_UDP, PROTOCOL_ICMP, PROTOCOL_ICMPV6, PROTOCOL_OSPF, PROTOCOL_SCTP
+
+####rate_class
+
+The virtual server rate class.
+
+####persistence_profile
+
+The virtual server persistence profiles.
+
+####profile
+
+The virtual server profiles.
+
+####rule
+
+The virtual server rules. The rule order isn't enforced since F5 API does not provide ability to reorder rules, use irule priority to dictate rule processing order
+
+####snat_type
+
+The virtual server snat type.
+
+Valid options are: SNAT_TYPE_NONE, SNAT_TYPE_TRANSLATION_ADDRESS, SNAT_TYPE_SNATPOOL, SNAT_TYPE_AUTOMAP
+
+####snat_pool
+
+Virtual server snat_pool.
+
+####source_port_behavior
+
+The virtual server source port behavior.
+
+Valid options are: SOURCE_PORT_PRESERVE, SOURCE_PORT_PRESERVE_STRICT, SOURCE_PORT_CHANGE
+
+####translate_address_state
+
+The virtual server translate address state.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+####translate_port_state
+
+The virtual server translate port state.
+
+Valid options are: STATE_DISABLED, STATE_ENABLED
+
+####type
+
+The virtual server type.
+
+Valid options are: RESOURCE_TYPE_POOL, RESOURCE_TYPE_IP_FORWARDING, RESOURCE_TYPE_L2_FORWARDING, RESOURCE_TYPE_REJECT, RESOURCE_TYPE_FAST_L4, RESOURCE_TYPE_FAST_HTTP, RESOURCE_TYPE_STATELESS
+
+####vlan
+
+The virtual server vlan.
+
+####wildmask
+
+The virtual server wildmask.
 
 ##Limitations
 
