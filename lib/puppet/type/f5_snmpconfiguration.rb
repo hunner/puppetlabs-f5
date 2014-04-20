@@ -2,6 +2,7 @@ Puppet::Type.newtype(:f5_snmpconfiguration) do
   @doc = "Manage F5 SNMP configuration properties."
 
   apply_to_device
+  fail("f5_snmpconfiguration is currently unsupported in the module.")
 
   newparam(:name, :namevar=>true) do
     desc "The SNMP type name. Fixed to 'agent'."
