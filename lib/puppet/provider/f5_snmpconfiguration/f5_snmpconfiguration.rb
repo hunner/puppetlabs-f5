@@ -14,40 +14,60 @@ Puppet::Type.type(:f5_snmpconfiguration).provide(:f5_snmpconfiguration, :parent 
     self.class.wsdl
   end
 
+  # Format:  { property => { message => array? } }
   def self.snmpmethods
     {
-      :access_info                => 'access_info', #Array
-      :agent_group_id             => 'group_id',
-      :agent_interface            => 'agent_intf',
-      :agent_listen_address       => 'agent_listen_addresses', #Array
-      :agent_trap_state           => 'state',
-      :agent_user_id              => 'user_id',
-      :auth_trap_state            => 'state',
-      :check_disk                 => 'disk_info',
-      :check_file                 => 'file_info',
-      :check_load                 => 'load_info',
-      :check_process              => 'proc_info',
-      :client_access              => 'client_access_info',
-      :community_to_security_info => 'security_info',
-      :create_user                => 'user_info', #array
-      :engine_id                  => 'engine_id',
-      :exec                       => 'exec_info', #array
-      :exec_fix                   => 'exec_info', #array
-      :generic_traps_v2           => 'sink_info', #array
-      :group_info                 => 'group_info', #array
-      :ignore_disk                => 'ignore_disk', #array
-      :pass_through               => 'passthru_info', #array
-      :pass_through_persist       => 'passthru_info', #array
-      :process_fix                => 'fix_info', #array
-      :proxy                      => 'proxy_info', #array
-      :readonly_community         => 'ro_community_info', #array
-      :readonly_user              => 'ro_user_info', #array
-      :readwrite_community        => 'rw_community_info', #array
-      :readwrite_user             => 'rw_user_info', #array
-      :system_information         => 'system_info',
-      :trap_community             => 'community',
-      :view_info                  => 'view_info', #array
+      :access_info                => { :access_info            => true },
+      :agent_group_id             => { :group_id               => false },
+      :agent_interface            => { :agent_intf             => false },
+      :agent_listen_address       => { :agent_listen_addresses => true },
+      :agent_trap_state           => { :state                  => false },
+      :agent_user_id              => { :user_id                => false },
+      :auth_trap_state            => { :state                  => false },
+      :check_disk                 => { :disk_info              => true },
+      :check_file                 => { :file_info              => false },
+      :check_load                 => { :load_info              => false },
+      :check_process              => { :proc_info              => true },
+      :client_access              => { :client_access_info     => false },
+      :client_access              => { :client_access_info     => true },
+      :community_to_security_info => { :security_info          => false },
+      :create_user                => { :user_info              => true },
+      :engine_id                  => { :engine_id              => false },
+      :exec                       => { :exec_info              => true },
+      :exec_fix                   => { :exec_info              => true },
+      :generic_traps_v2           => { :sink_info              => true },
+      :group_info                 => { :group_info             => true },
+      :ignore_disk                => { :ignore_disk            => true },
+      :pass_through               => { :passthru_info          => true },
+      :pass_through_persist       => { :passthru_info          => true },
+      :process_fix                => { :fix_info               => true },
+      :proxy                      => { :proxy_info             => true },
+      :readonly_community         => { :ro_community_info      => true },
+      :readonly_user              => { :ro_user_info           => true },
+      :readwrite_community        => { :rw_community_info      => true },
+      :readwrite_user             => { :rw_user_info           => true },
+      :system_information         => { :system_info            => false },
+      :trap_community             => { :community              => false },
+      :view_info                  => { :view_info              => true },
     }
+  end
+
+  def munge(hash)
+    # Short circuit for strings.
+    return hash unless hash.is_a?(Hash)
+    newhash = {}
+    hash.each do |key, value|
+      if value.is_a?(Hash)
+        newhash[key] = munge(value)
+      else
+        if value.nil?
+          newhash[key] = ''
+        else
+          newhash[key] = value
+        end
+      end
+    end
+    newhash
   end
 
   def self.instances
@@ -55,121 +75,215 @@ Puppet::Type.type(:f5_snmpconfiguration).provide(:f5_snmpconfiguration, :parent 
   end
 
   def access_info
-    transport[wsdl].get(:get_access_info)
+    response = transport[wsdl].get(:get_access_info)
+    munge(response)
   end
 
   def agent_group_id
-    transport[wsdl].get(:get_agent_group_id)
+    response = transport[wsdl].get(:get_agent_group_id)
+    munge(response)
   end
 
   def agent_interface
-    transport[wsdl].get(:get_agent_interface)
+    response = transport[wsdl].get(:get_agent_interface)
+    munge(response)
   end
 
   def agent_listen_address
-    require 'pry'
-    binding.pry
     response = transport[wsdl].get(:get_agent_listen_address)
-    response.each do |hash|
-      if hash[:ipport][:address].is_a?(Hash)
-        hash[:ipport][:address] == ''
-      end
-    end
-    response
+    munge(response)
   end
 
   def agent_trap_state
+    response = transport[wsdl].get(:get_agent_trap_state)
+    munge(response)
   end
+
   def agent_user_id
+    response = transport[wsdl].get(:get_agent_user_id)
+    munge(response)
   end
+
   def auth_trap_state
+    response = transport[wsdl].get(:get_auth_trap_state)
+    munge(response)
   end
+
   def check_disk
+    response = transport[wsdl].get(:get_check_disk)
+    munge(response)
   end
+
   def check_file
+    response = transport[wsdl].get(:get_check_file)
+    munge(response)
   end
+
   def check_load
+    response = transport[wsdl].get(:get_check_load)
+    munge(response)
   end
+
   def check_process
+    response = transport[wsdl].get(:get_check_process)
+    munge(response)
   end
+
   def client_access
+    response = transport[wsdl].get(:get_client_access)
+    munge(response)
   end
+
   def community_to_security_info
+    response = transport[wsdl].get(:get_community_to_security_info)
+    munge(response)
   end
+
   def create_user
+    response = transport[wsdl].get(:get_create_user)
+    munge(response)
   end
+
   def engine_id
+    response = transport[wsdl].get(:get_engine_id)
+    munge(response)
   end
+
   def exec
+    response = transport[wsdl].get(:get_exec)
+    munge(response)
   end
+
   def exec_fix
+    response = transport[wsdl].get(:get_exec_fix)
+    munge(response)
   end
+
   def generic_traps_v2
+    response = transport[wsdl].get(:get_generic_traps_v2)
+    munge(response)
   end
+
   def group_info
+    response = transport[wsdl].get(:get_group_info)
+    munge(response)
   end
+
   def ignore_disk
+    response = transport[wsdl].get(:get_ignore_disk)
+    munge(response)
   end
+
   def pass_through
+    response = transport[wsdl].get(:get_pass_through)
+    munge(response)
   end
+
   def pass_through_persist
+    response = transport[wsdl].get(:get_pass_through_persist)
+    munge(response)
   end
+
   def process_fix
+    response = transport[wsdl].get(:get_process_fix)
+    munge(response)
   end
+
   def proxy
+    response = transport[wsdl].get(:get_proxy)
+    munge(response)
   end
+
   def readonly_community
+    response = transport[wsdl].get(:get_readonly_community)
+    munge(response)
   end
+
   def readonly_user
+    response = transport[wsdl].get(:get_readonly_user)
+    munge(response)
   end
+
   def readwrite_community
+    response = transport[wsdl].get(:get_readwrite_community)
+    munge(response)
   end
+
   def readwrite_user
+    response = transport[wsdl].get(:get_readwrite_user)
+    munge(response)
   end
+
   def system_information
+    response = transport[wsdl].get(:get_system_information)
+    munge(response)
   end
+
   def trap_community
+    response = transport[wsdl].get(:get_trap_community)
+    munge(response)
   end
+
   def view_info
+    response = transport[wsdl].get(:get_view_info)
+    munge(response)
   end
 
-  snmphash=Puppet::Util::NetworkDevice::F5.snmpconfiguration_methods
-  snmpmethods.keys.each do |method, message_name|
-    #define_method(method.to_sym) do
-    #  response = transport[wsdl].call("get_#{method}".to_sym).body["get_#{method}_response".to_sym][:return]
-    #  if response.is_a?(String)
-    #    response
-    #  else
-    #    response[:item]
-    #  end
-    #end
-
+  snmpmethods.each do |method, apicall|
     define_method("#{method}=") do |value|
-      if snmphash[method].class == Array
-        add=(value-@methods_data[method])
-        rem=(@methods_data[method]-value)
-        if rem.empty? == false && transport[wsdl].operations.include?("remove_#{method}".to_sym)
-          transport[wsdl].call("remove_#{method}".to_sym, rem)
+      remove  = {}
+      message = {}
+      # SNMP elements only sometimes want to be in an array.
+      apicall.each do |message_name, array|
+        if array
+          remove  = { message_name => { items: send(method) }}
+          message = { message_name => { items: value }}
+        else
+          remove  = { message_name => method }
+          message = { message_name => value }
         end
-      else
-        add=value
       end
-      if add.empty? == false && transport[wsdl].operations.include?("set_#{method}".to_sym)
-        transport[wsdl].call("set_#{method}".to_sym, add)
-      end
+      # First we remove everything
+      require 'pry'
+      binding.pry
+      transport[wsdl].call("remove_#{method}".to_sym, message: remove)
+      # Then set just the new items
+      transport[wsdl].call("set_#{method}".to_sym, message: message)
     end
   end
 
+  #snmphash=Puppet::Util::NetworkDevice::F5.snmpconfiguration_methods
+  #snmpmethods.each do |method, message_name|
+  #  define_method("#{method}=") do |value|
+  #    @methods_data={} if @methods_data.class == NilClass
+  #    if snmphash[method].class == Array
+  #      add=(value-@methods_data[method])
+  #      rem=(@methods_data[method]-value)
+  #      unless rem.empty?
+  #        message = { message_name => rem }
+  #        transport[wsdl].call("remove_#{method}".to_sym, message: rem)
+  #      end
+  #    else
+  #      add=value
+  #    end
+  #    unless add.empty?
+  #      message = { message_name => add }
+  #      transport[wsdl].call("set_#{method}".to_sym, message: message)
+  #    end
+  #  end
+  #end
+
+  # TODO: Test this properly.
   ### Inconsistent method handling in the BigIP. All methods managing arrays
   ### append to the existing elements but set_agent_listen_address and
   ### set_client_access replace them. Case C1042181 opened with F5.
 
-  ['agent_listen_address','client_access'].each do |method|
-    define_method("#{method}=") do |value|
-      if transport[wsdl].operations.include?("set_#{method}".to_sym)
-        transport[wsdl].call("set_#{method}".to_sym, value)
-      end
-    end
-  end
+  #['agent_listen_address','client_access'].each do |method|
+  #  define_method("#{method}=") do |value|
+  #    if transport[wsdl].operations.include?("set_#{method}".to_sym)
+  #      transport[wsdl].call("set_#{method}".to_sym, message: value)
+  #    end
+  #  end
+  #end
 
 end

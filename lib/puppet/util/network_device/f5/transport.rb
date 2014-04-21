@@ -6,10 +6,28 @@ module Savon
   class Client
     def get(call, message=nil)
       if message
-        response = self.call(call, message: message).body["#{call}_response".to_sym][:return][:item]
+        reply = self.call(call, message: message).body["#{call}_response".to_sym]
       else
-        response = self.call(call).body["#{call}_response".to_sym][:return][:item]
+        reply = self.call(call).body["#{call}_response".to_sym]
       end
+
+      # Attempt to divine the appropriate repsonse from the reply message.
+      # What we're looking for here is a {:return => nil} which we can get
+      # from Savon 2.4.0.  If we get that just skip to returning a blank
+      # hash and we move on.
+      if reply[:return] == nil
+        return {}
+      # Almost everything in Savon comes back as a hash, except SOMETIMES
+      # in SNMP it doesn't.  WHAT?
+      elsif reply[:return].is_a?(String) or reply[:return].is_a?(Array)
+        return reply[:return]
+      elsif reply[:return].has_key?(:item)
+        response = reply[:return][:item]
+      else
+        response = reply[:return]
+      end
+
+      # Here we handle nested hashes, which can be a pain in Savon.
       return response if response.is_a?(String) or response.is_a?(Array)
       if response.is_a?(Hash)
         if response[:item]
@@ -49,7 +67,7 @@ module Puppet::Util::NetworkDevice::F5
           @interfaces[wsdl] = Savon.client(wsdl: wsdl_path, ssl_verify_mode: :none,
             basic_auth: [@username, @password], endpoint: url,
             namespace: namespace, convert_request_keys_to: :none,
-            strip_namespaces: true, log: false)
+            strip_namespaces: true, log: false, :convert_attributes_to => lambda {|k,v| []})
         end
       end
 
