@@ -56,13 +56,9 @@ Puppet::Type.type(:f5_certificate).provide(:f5_certificate, :parent => Puppet::P
     end
   end
 
-  #def flush
-  #  @property_hash.clear
-  #end
-
   def content
     # Fetch and calculate all certificate sha1
-    message = { mode: @property_hash[:mode], cert_ids: {item: @property_hash[:name]}}
+    message = { mode: @resource[:mode], cert_ids: {item: self.name}}
     value = transport[wsdl].call(:certificate_export_to_pem, message: message).body[:certificate_export_to_pem_response][:return][:item]
     certs = value.scan(/([-| ]*BEGIN CERTIFICATE[-| ]*.*?[-| ]*END CERTIFICATE[-| ]*)/m).flatten
 
@@ -89,19 +85,14 @@ Puppet::Type.type(:f5_certificate).provide(:f5_certificate, :parent => Puppet::P
   end
 
   def create
-    self.class.resource_type.validproperties.each do |property|
-      if val = resource.should(property)
-        @property_hash[property] = val
-      end
-    end
-    message = { mode: resource[:mode], cert_ids: { item: resource[:name] }, pem_data: { item: resource[:real_content] }, overwrite: true }
-    transport[wsdl].call(:certificate_import_from_pem, message: message)
+    content= @resource.should(:content)
     @property_hash[:ensure] = :present
   end
 
   def destroy
     message = { mode: resource[:mode], cert_ids: { item: resource[:name] } }
     transport[wsdl].call(:certificate_delete, message: message)
+    @property_hash[:ensure] = :absent
   end
 
   def exists?

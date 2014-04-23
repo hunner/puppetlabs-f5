@@ -47,8 +47,6 @@ Puppet::Type.type(:f5_profileclientssl).provide(:f5_profileclientssl, :parent =>
       keys: { item: { value: existing_key[:value], default_flag: existing_key[:default_flag] }},
       certs: { item: { value: value[:value], default_flag: value[:default_flag] }},
     }
-    require 'pry'
-    binding.pry
     transport[wsdl].call(:set_key_certificate_file, message: message)
   end
 
@@ -148,8 +146,6 @@ Puppet::Type.type(:f5_profileclientssl).provide(:f5_profileclientssl, :parent =>
         }
       }
     }
-    require 'pry'
-    binding.pry
     transport[wsdl].call(:create_v2, message: message)
 
     # It's not clear to me the difference between these two.  We've been
@@ -167,11 +163,13 @@ Puppet::Type.type(:f5_profileclientssl).provide(:f5_profileclientssl, :parent =>
     if resource[:chain_file]
       self.chain_file = resource[:chain_file]
     end
+    @property_hash[:ensure] = :present
   end
 
   def destroy
     message = { profile_names: { item: resource[:name] }}
     transport[wsdl].call(:delete_profile, message: message)
+    @property_hash[:ensure] = :absent
   end
 
   def exists?

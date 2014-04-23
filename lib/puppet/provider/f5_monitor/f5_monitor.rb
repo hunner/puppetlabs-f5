@@ -37,10 +37,6 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
     end
   end
 
-  def flush
-    @property_hash[:name] ||= resource[:name]
-  end
-
   {
     'manual_resume_state'                   => 'states',
     'template_state'                        => 'states',
@@ -49,16 +45,16 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
   }.each do |method, name|
     define_method(method.to_sym) do
       call = "get_#{method}".to_sym
-      transport[wsdl].get(call, { template_names: { items: @property_hash[:name]}})
+      transport[wsdl].get(call, { template_names: { items: self.name}})
     end
     define_method("#{method}=") do |value|
-      transport[wsdl].call("set_#{method}".to_sym, 'message' => { template_names: { 'items' => @property_hash[:name]}, name => { 'items' => value }})
+      transport[wsdl].call("set_#{method}".to_sym, 'message' => { template_names: { 'items' => self.name}, name => { 'items' => value }})
     end
   end
 
   # This is returned as {} if we set it to false in puppet, so lets handle that.
   def template_transparent_mode
-    message = { template_names: { items: @property_hash[:name]}}
+    message = { template_names: { items: self.name}}
     response = transport[wsdl].get(:get_template_transparent_mode, message)
 
     return 'false' if response == {}
@@ -67,7 +63,7 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
 
   # Lacks a set API, so we just define this seperately to the other properties above.
   def parent_template
-    transport[wsdl].get(:get_parent_template, { template_names: @property_hash[:name]})
+    transport[wsdl].get(:get_parent_template, { template_names: self.name})
   end
 
   def monitor_ipport(value)
@@ -83,7 +79,7 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
   end
 
   def template_destination
-    destination = transport[wsdl].get(:get_template_destination, { template_names: { items: resource[:name]}})
+    destination = transport[wsdl].get(:get_template_destination, { template_names: { items: self.name}})
     # need F5 eng review: http://devcentral.f5.com/wiki/iControl.LocalLB__AddressType.ashx
     case destination[:address_type]
     when 'ATYPE_STAR_ADDRESS_STAR_PORT'
@@ -102,7 +98,7 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
   end
 
   def template_destination=(value)
-    message = { template_names: { items: resource[:name]}, destinations: monitor_ipport(resource[:template_destination])}
+    message = { template_names: { items: self.name}, destinations: monitor_ipport(resource[:template_destination])}
     transport[wsdl].call(:set_template_destination, message: message)
   end
 
@@ -119,7 +115,7 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
 
     template_integer = {}
     properties.each do |property|
-      message = { template_names: { items: @property_hash[:name] }, property_types: { items: property }}
+      message = { template_names: { items: self.name }, property_types: { items: property }}
       response = transport[wsdl].get(:get_template_integer_property, message)
       template_integer[property] = response[:value]
     end
@@ -129,7 +125,7 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
   def template_integer_property=(value)
     resource[:template_integer_property].each do |k, v|
       # Trying to configure ITYPE_UNSET results in Exception: Common::OperationFailed
-      message = { template_names: { items: resource[:name] }, values: { items: [{:type => k, :value => v}]}}
+      message = { template_names: { items: self.name }, values: { items: [{:type => k, :value => v}]}}
       transport[wsdl].call(:set_template_integer_property, message: message) unless k == 'ITYPE_UNSET'
     end
   end
@@ -234,7 +230,7 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
     ].each do |property|
       # STYPE_UNSET makes 11.5 crash.  I don't know why.
       next if property == 'STYPE_UNSET'
-      message = { template_names: { items: @property_hash[:name] }, property_types: { items: property }}
+      message = { template_names: { items: self.name }, property_types: { items: property }}
       # We need to not fail on properties that are missing.
       begin
         response = transport[wsdl].get(:get_template_string_property, message)
@@ -252,13 +248,13 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
 
   def template_string_property=(value)
     resource[:template_string_property].each do |k, v|
-      message = { template_names: { item: resource[:name] }, values: { item: [{:type => k, :value => v}] }}
+      message = { template_names: { item: self.name }, values: { item: [{:type => k, :value => v}] }}
       transport[wsdl].call(:set_template_string_property, message: message)
     end
   end
 
   def template_type
-    message = { template_names: { item: @property_hash[:name]}}
+    message = { template_names: { item: self.name}}
     transport[wsdl].get(:get_template_type, message)
   end
 
@@ -269,11 +265,10 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
   end
 
   def create
-    @property_hash[:name] = resource[:name]
-    Puppet.debug("Puppet::Provider::F5_Monitor: creating F5 monitor #{resource[:name]}")
+    Puppet.debug("Puppet::Provider::F5_Monitor: creating F5 monitor #{self.name}")
 
 
-    monitor_template = { :template_name => resource[:name],
+    monitor_template = { :template_name => self.name,
                          :template_type => resource[:template_type] }
 
     # configure timeout default based on F5 recommendation of 3x interval + 1 second.
@@ -307,17 +302,12 @@ Puppet::Type.type(:f5_monitor).provide(:f5_monitor, :parent => Puppet::Provider:
     end
 
     @property_hash[:ensure] = :present
-    self.class.resource_type.validproperties.each do |property|
-      if val = resource.should(property)
-        @property_hash[property] = val
-      end
-    end
   end
 
   def destroy
-    Puppet.debug("Puppet::Provider::F5_Monitor: deleting F5 monitor #{resource[:name]}")
+    Puppet.debug("Puppet::Provider::F5_Monitor: deleting F5 monitor #{self.name}")
     @property_hash[:ensure] = :absent
-    transport[wsdl].call(:delete_template, message: { template_names: { item: @property_hash[:name]}})
+    transport[wsdl].call(:delete_template, message: { template_names: { item: self.name}})
   end
 
   def exists?

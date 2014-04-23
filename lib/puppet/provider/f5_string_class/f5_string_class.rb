@@ -49,7 +49,7 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
     current_members = value.select {|k,v| members.has_key?(k) }
     remove_members  = members.reject {|k,v| value.has_key?(k) }
 
-    if new_members
+    if ! new_members.empty?
       message = { class_members: { items: { name: resource[:name], members: { items: new_members.keys }}}}
       transport[wsdl].call(:add_string_class_member, message: message)
 
@@ -70,7 +70,7 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
       end
     end
 
-    if current_members
+    if ! current_members.empty?
       current_members.each do |member, content|
         if value[member] != members[member]
           message = {
@@ -90,7 +90,7 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
       end
     end
 
-    if remove_members
+    if ! remove_members.empty?
       message = { class_members: { items: { name: resource[:name], members: { items: remove_members.keys }}}}
       transport[wsdl].call(:delete_string_class_member, message: message)
     end
@@ -101,10 +101,12 @@ Puppet::Type.type(:f5_string_class).provide(:f5_string_class, :parent => Puppet:
     message = { classes: { items: { name: resource[:name], members: { items: [] }}}}
     transport[wsdl].call(:create_string_class, message: message)
     self.members = resource[:members]
+    @property_hash[:ensure] = :present
   end
 
   def destroy
     transport[wsdl].call(:delete_class, message: { classes: { items: resource[:name] }})
+    @property_hash[:ensure] = :absent
   end
 
   def exists?

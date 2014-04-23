@@ -29,8 +29,7 @@ Puppet::Type.type(:f5_file).provide(:f5_file, :parent => Puppet::Provider::F5) d
   end
 
   def create
-    Puppet.debug("Puppet::Provider::F5_file: creating file #{resource[:name]}")
-    upload_file(resource[:name], resource[:real_content])
+    content= @resource.should(:content)
   end
 
   def destroy

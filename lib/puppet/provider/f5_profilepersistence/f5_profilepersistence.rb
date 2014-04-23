@@ -113,11 +113,13 @@ Puppet::Type.type(:f5_profilepersistence).provide(:f5_profilepersistence, :paren
     self.class.methods_without_flag.each do |method, unused|
       send("#{method}=", resource[method]) if resource[method]
     end
+    @property_hash[:ensure] = :present
   end
 
   def destroy
     message = { profile_names: { item: resource[:name] }}
     transport[wsdl].call(:delete_profile, message: message)
+    @property_hash[:ensure] = :absent
   end
 
   def exists?

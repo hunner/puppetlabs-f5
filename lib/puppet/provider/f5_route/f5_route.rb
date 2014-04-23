@@ -34,7 +34,7 @@ Puppet::Type.type(:f5_route).provide(:f5_route, :parent => Puppet::Provider::F5)
     message = { routes: { item: resource[:name] }}
     transport[wsdl].call(:delete_static_route, message: message)
 
-    @property_hash.clear
+    @property_hash[:ensure] = :absent
   end
 
   def create
@@ -62,6 +62,7 @@ Puppet::Type.type(:f5_route).provide(:f5_route, :parent => Puppet::Provider::F5)
     if resource[:description]
       description=(resource[:description])
     end
+    @property_hash[:ensure] = :present
 
   end
 
@@ -70,7 +71,7 @@ Puppet::Type.type(:f5_route).provide(:f5_route, :parent => Puppet::Provider::F5)
   end
 
   def destination
-    message = { routes: { item: @property_hash[:name] }}
+    message = { routes: { item: self.name }}
     response = transport[wsdl].get(:get_static_route_destination, message)
     return response[:address]
   end
@@ -83,7 +84,7 @@ Puppet::Type.type(:f5_route).provide(:f5_route, :parent => Puppet::Provider::F5)
   end
 
   def netmask
-    message = { routes: { item: @property_hash[:name] }}
+    message = { routes: { item: self.name }}
     response = transport[wsdl].get(:get_static_route_destination, message)
     return response[:netmask]
   end
@@ -96,22 +97,20 @@ Puppet::Type.type(:f5_route).provide(:f5_route, :parent => Puppet::Provider::F5)
   end
 
   def description
-    message = { routes: { item: @property_hash[:name] }}
+    message = { routes: { item: self.name }}
     transport[wsdl].get(:get_static_route_description, message)
   end
 
   def description=(value)
-    require 'pry'
-    binding.pry
     message = {
-      routes: { item: @property_hash[:name] },
+      routes: { item: self.name },
       descriptions: { item: resource[:description] },
     }
     transport[wsdl].call(:set_static_route_description, message: message)
   end
 
   def gateway
-    message = { routes: { item: @property_hash[:name] }}
+    message = { routes: { item: self.name }}
     response = transport[wsdl].get(:get_static_route_gateway, message)
     # Internally the F5 represents reject as an ipv6 address.
     return 'reject' if response == '0:0:0:0:0:0:0:0'
@@ -121,11 +120,11 @@ Puppet::Type.type(:f5_route).provide(:f5_route, :parent => Puppet::Provider::F5)
   def gateway=(value)
     # Handle values of reject.
     if value == 'reject'
-      message = { routes: { item: @property_hash[:name] }}
+      message = { routes: { item: self.name }}
       transport[wsdl].call(:set_static_route_reject, message)
     else
       message = {
-        routes: { item: @property_hash[:name] },
+        routes: { item: self.name },
         gateways: { item: resource[:gateway] },
       }
       transport[wsdl].call(:set_static_route_gateway, message: message)
@@ -133,39 +132,39 @@ Puppet::Type.type(:f5_route).provide(:f5_route, :parent => Puppet::Provider::F5)
   end
 
   def mtu
-    message = { routes: { item: @property_hash[:name] }}
+    message = { routes: { item: self.name }}
     transport[wsdl].get(:get_static_route_mtu, message)
   end
 
   def mtu=(value)
     message = {
-      routes: { item: @property_hash[:name] },
+      routes: { item: self.name },
       mtus:   { item: resource[:mtu] },
     }
     transport[wsdl].call(:set_static_route_mtu, message: message)
   end
 
   def pool
-    message = { routes: { item: @property_hash[:name] }}
+    message = { routes: { item: self.name }}
     transport[wsdl].get(:get_static_route_pool, message)
   end
 
   def pool=(value)
     message = {
-      routes: { item: @property_hash[:name] },
+      routes: { item: self.name },
       pools:  { item: resource[:pool] },
     }
     transport[wsdl].call(:set_static_route_pool, message: message)
   end
 
   def vlan
-    message = { routes: { item: @property_hash[:name] }}
+    message = { routes: { item: self.name }}
     transport[wsdl].get(:get_static_route_vlan, message)
   end
 
   def vlan=(value)
     message = {
-      routes: { item: @property_hash[:name] },
+      routes: { item: self.name },
       vlans:  { item: resource[:vlan] },
     }
     transport[wsdl].call(:set_static_route_vlan, message: message)

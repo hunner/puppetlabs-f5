@@ -244,46 +244,10 @@ Puppet::Type.type(:f5_snmpconfiguration).provide(:f5_snmpconfiguration, :parent 
         end
       end
       # First we remove everything
-      require 'pry'
-      binding.pry
       transport[wsdl].call("remove_#{method}".to_sym, message: remove)
       # Then set just the new items
       transport[wsdl].call("set_#{method}".to_sym, message: message)
     end
   end
-
-  #snmphash=Puppet::Util::NetworkDevice::F5.snmpconfiguration_methods
-  #snmpmethods.each do |method, message_name|
-  #  define_method("#{method}=") do |value|
-  #    @methods_data={} if @methods_data.class == NilClass
-  #    if snmphash[method].class == Array
-  #      add=(value-@methods_data[method])
-  #      rem=(@methods_data[method]-value)
-  #      unless rem.empty?
-  #        message = { message_name => rem }
-  #        transport[wsdl].call("remove_#{method}".to_sym, message: rem)
-  #      end
-  #    else
-  #      add=value
-  #    end
-  #    unless add.empty?
-  #      message = { message_name => add }
-  #      transport[wsdl].call("set_#{method}".to_sym, message: message)
-  #    end
-  #  end
-  #end
-
-  # TODO: Test this properly.
-  ### Inconsistent method handling in the BigIP. All methods managing arrays
-  ### append to the existing elements but set_agent_listen_address and
-  ### set_client_access replace them. Case C1042181 opened with F5.
-
-  #['agent_listen_address','client_access'].each do |method|
-  #  define_method("#{method}=") do |value|
-  #    if transport[wsdl].operations.include?("set_#{method}".to_sym)
-  #      transport[wsdl].call("set_#{method}".to_sym, message: value)
-  #    end
-  #  end
-  #end
 
 end
