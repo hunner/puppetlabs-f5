@@ -89,11 +89,8 @@ earlier.  You can run puppet resource directly.
 $ FACTER_url=https://admin:admin@f5.puppetlabs.lan/ puppet resource f5_user
 ```
 
-You can change a property by hand this way too.
-
-```
-$ FACTER_url=https://admin:admin@f5.puppetlabs.lan/ puppet resource f5_user test ensure=absent
-```
+To create, modify, or remove resources, they must be evaluated by `puppet
+device` that is contacting a puppet master.
 
 ##Usage
 
